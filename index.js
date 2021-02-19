@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const bodyParser = require('body-parser');
 
 const { Item } = require('./model');
 
@@ -8,6 +9,7 @@ const app = express();
 
 require('dotenv').config();
 app.use(cors());
+app.use(bodyParser.json());
 
 console.log(process.env.MONGO_URL);
 mongoose.connect(process.env.MONGO_URL, {
@@ -29,12 +31,15 @@ app.get('/item', (req, res) => {
   });
 });
 
-app.post('/item', (req, res) => {
-  Item.create({
-    name: req.query.name,
-    category: req.query.category,
-    done: false,
-  });
+app.put('/item', async (req, res) => {
+  console.log(req.body);
+  await Item.create(req.body);
+  res.sendStatus(200);
+});
+
+app.delete('/item', async (req, res) => {
+  console.log(req.body);
+  await Item.deleteOne(req.body);
   res.sendStatus(200);
 });
 
