@@ -16,7 +16,7 @@ db.on('error', console.error.bind(console, 'connection error:'));
 
 const io = require('socket.io')({
   cors: {
-    origin: 'http://localhost:3000',
+    origin: 'https://chiellalist.vercel.app',
     methods: ['GET', 'POST'],
   }
 });
@@ -26,7 +26,7 @@ io.on('connection', (socket) => {
 
   const emitUpdate = () => {
     Item.find({}, (err, docs) => {
-      socket.emit('update', docs);
+      io.emit('update', docs);
     });
   };
 
