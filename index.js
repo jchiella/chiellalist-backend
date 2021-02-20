@@ -16,7 +16,7 @@ db.on('error', console.error.bind(console, 'connection error:'));
 
 const io = require('socket.io')({
   cors: {
-    origin: 'https://chiellalist.vercel.app',
+    origin: '*',
     methods: ['GET', 'POST'],
   }
 });
