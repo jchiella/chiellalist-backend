@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { emit } = require('nodemon');
 const { Socket } = require('socket.io');
 const { Item } = require('./model');
 
@@ -41,6 +42,10 @@ io.on('connection', (socket) => {
   socket.on('delete', (arg) => {
     Item.deleteOne(arg).then(() => emitUpdate());
   });
+
+  socket.on('patch', (arg) => {
+    Item.updateOne({ name: arg.name }, arg).then(() => emitUpdate());
+  })
 
 });
 
