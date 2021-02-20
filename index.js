@@ -1,6 +1,6 @@
+var fs = require('fs');
+
 const mongoose = require('mongoose');
-const { emit } = require('nodemon');
-const { Socket } = require('socket.io');
 const { Item } = require('./model');
 
 require('dotenv').config();
@@ -14,11 +14,19 @@ const db = mongoose.connection;
 
 db.on('error', console.error.bind(console, 'connection error:'));
 
-const io = require('socket.io')({
+const app = require('https').createServer({
+  key: fs.readFileSync('/etc/letsencrypt/live/valinor.tk/privkey.pem'),
+  cert: fs.readFileSync('/etc/letsencrypt/live/valinor.tk/fullchain.pem'),
+}, function (req, res) {
+  res.writeHead(200);
+  res.end('Hello world\n');
+});
+
+const io = require('socket.io')(app, {
   cors: {
     origin: '*',
     methods: ['GET', 'POST'],
-  }
+  },
 });
 
 io.on('connection', (socket) => {
@@ -49,4 +57,4 @@ io.on('connection', (socket) => {
 
 });
 
-io.listen(process.env.PORT);
+app.listen(process.env.PORT);
