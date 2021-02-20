@@ -1,17 +1,9 @@
-const express = require('express');
 const mongoose = require('mongoose');
-const cors = require('cors');
-const bodyParser = require('body-parser');
-
+const { Socket } = require('socket.io');
 const { Item } = require('./model');
 
-const app = express();
-
 require('dotenv').config();
-app.use(cors());
-app.use(bodyParser.json());
 
-console.log(process.env.MONGO_URL);
 mongoose.connect(process.env.MONGO_URL, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -21,28 +13,35 @@ const db = mongoose.connection;
 
 db.on('error', console.error.bind(console, 'connection error:'));
 
-app.get('/', (req, res) => {
-  res.send('Hello world from the chiella list backend!');
+const io = require('socket.io')({
+  cors: {
+    origin: 'http://localhost:3000',
+    methods: ['GET', 'POST'],
+  }
 });
 
-app.get('/item', (req, res) => {
-  Item.find((err, docs) => {
-    res.json(docs);
+io.on('connection', (socket) => {
+  console.log('Connection has been made!');
+
+  const emitUpdate = () => {
+    Item.find({}, (err, docs) => {
+      socket.emit('update', docs);
+    });
+  };
+
+  socket.on('hello', () => {
+    console.log('Recieved hello from client!');
+    emitUpdate();
   });
+
+  socket.on('put', (arg) => {
+    Item.create(arg).then(() => emitUpdate());
+  });
+
+  socket.on('delete', (arg) => {
+    Item.deleteOne(arg).then(() => emitUpdate());
+  });
+
 });
 
-app.put('/item', async (req, res) => {
-  console.log(req.body);
-  await Item.create(req.body);
-  res.sendStatus(200);
-});
-
-app.delete('/item', async (req, res) => {
-  console.log(req.body);
-  await Item.deleteOne(req.body);
-  res.sendStatus(200);
-});
-
-app.listen(process.env.PORT, () => {
-  console.log(`App listening at http://localhost:${process.env.PORT}`);
-});
+io.listen(process.env.PORT);
