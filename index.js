@@ -51,10 +51,13 @@ io.on('connection', (socket) => {
     Item.deleteOne(arg).then(() => emitUpdate());
   });
 
-  socket.on('patch', (arg) => {
-    Item.updateOne({ name: arg.name }, arg).then(() => emitUpdate());
-  })
+  socket.on('patch', (name, arg) => {
+    Item.updateOne({ name }, { '$set': arg }).then(() => emitUpdate());
+  });
 
+  socket.on('patchAll', (arg) => {
+    Item.updateMany({}, { '$set': arg }).then(() => emitUpdate());
+  });
 });
 
 app.listen(process.env.PORT);
