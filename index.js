@@ -14,13 +14,15 @@ const db = mongoose.connection;
 
 db.on('error', console.error.bind(console, 'connection error:'));
 
-const app = require('https').createServer({
-  key: fs.readFileSync('/etc/letsencrypt/live/valinor.tk/privkey.pem'),
-  cert: fs.readFileSync('/etc/letsencrypt/live/valinor.tk/fullchain.pem'),
-}, function (req, res) {
-  res.writeHead(200);
-  res.end('Hello world\n');
-});
+// const app = require('https').createServer({
+//   key: fs.readFileSync('/etc/letsencrypt/live/valinor.tk/privkey.pem'),
+//   cert: fs.readFileSync('/etc/letsencrypt/live/valinor.tk/fullchain.pem'),
+// }, function (req, res) {
+//   res.writeHead(200);
+//   res.end('Hello world\n');
+// });
+
+const app = express();
 
 const io = require('socket.io')(app, {
   cors: {
@@ -52,11 +54,11 @@ io.on('connection', (socket) => {
   });
 
   socket.on('patch', (name, arg) => {
-    Item.updateOne({ name }, { '$set': arg }).then(() => emitUpdate());
+    Item.updateOne({ name }, { $set: arg }).then(() => emitUpdate());
   });
 
   socket.on('patchAll', (arg) => {
-    Item.updateMany({}, { '$set': arg }).then(() => emitUpdate());
+    Item.updateMany({}, { $set: arg }).then(() => emitUpdate());
   });
 });
 
