@@ -22,7 +22,7 @@ db.on('error', console.error.bind(console, 'connection error:'));
 //   res.end('Hello world\n');
 // });
 
-const app = express();
+const app = require('http').createServer();
 
 const io = require('socket.io')(app, {
   cors: {
